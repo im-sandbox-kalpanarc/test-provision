@@ -1,0 +1,24 @@
+name: Add user to Organization
+
+on:
+  push:
+    branches:
+      - custom-actions-test
+    paths:
+      - '.github/workflows/add-user-to-organization.yaml'
+
+jobs:
+  Add-user-to-orgnizatin:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Provision organization
+        uses: ./provisioner/actions/add-user-to-organization
+        with:
+          ORG: raj
+          USERNAME: kalpana
+          ROLE: member
+          TOKEN : ${{ secrets.USER_TOKEN }}
+          HOSTNAME: ${{ secrets.HOST_NAME }}

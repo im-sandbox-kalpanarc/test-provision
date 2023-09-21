@@ -1,0 +1,49 @@
+name: Update an Organization using GH CLI in Enterprise server
+description: Update an organization using the GH CLI in Enterprise Server
+
+inputs:   
+  USER_TOKEN:
+    description: 'Enter Personal access token of user'
+    required: true
+
+  ORG_NAME:
+    description: 'Enter the Organization name'
+    required: true   
+
+  HOSTNAME:
+    description: 'Enter the hostname'
+    required: true 
+
+  BILLING_EMAIL:
+    description: 'Enter the billing email'    
+    default: 'mona@github.com'
+
+  DEFAULT_REPOSITORY_PERMISSION:
+    description: 'Enter the default repository permission'
+    default: 'read'
+
+  MEMBERS_CAN_CREATE_REPOSITORIES:
+    description: 'Enter the members can create repositories'
+    default: 'true' 
+
+  MEMBERS_ALLOWED_REPOSITORY_CREATION_TYPE:
+    description: 'Enter the members allowed repository creation type'
+    default: 'all'     
+  
+runs:
+  using: composite
+  steps:
+    - 
+      run: |
+        echo "${{ inputs.USER_TOKEN }}" | gh auth login -h "${{ inputs.HOSTNAME }}" --with-token
+              
+        gh api \
+          --method PATCH \
+          -H "Accept: application/vnd.github+json" \
+          --hostname ${{ inputs.HOSTNAME }} \
+          /orgs/${{ inputs.ORG_NAME }} \
+        -f billing_email='${{ inputs.BILLING_EMAIL }}' \
+        -f default_repository_permission='${{ inputs.DEFAULT_REPOSITORY_PERMISSION }}' \
+        -F members_can_create_repositories=${{ inputs.MEMBERS_CAN_CREATE_REPOSITORIES }} \
+        -f members_allowed_repository_creation_type='${{ inputs.MEMBERS_ALLOWED_REPOSITORY_CREATION_TYPE }}' 
+      shell: bash

@@ -1,0 +1,23 @@
+name: Create RunnerGroup At Organization
+
+on:
+  push:
+    branches:
+      - custom-actions-test
+    paths:
+      - '.github/workflows/create-runnergroup-org.yaml'
+
+jobs:
+  create-runner-group-organization:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Provision organization
+        uses: ./provisioner/actions/create-runnergroup-org
+        with:
+          GROUP_NAME: raj
+          ORG_NAME: test-org-phani
+          TOKEN : ${{ secrets.USER_TOKEN }}
+          HOSTNAME: ${{ secrets.HOST_NAME }}

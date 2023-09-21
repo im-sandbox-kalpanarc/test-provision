@@ -1,0 +1,27 @@
+name: Create team in GitHub organization
+
+on:
+  workflow_dispatch:
+
+jobs:
+  create-team-in-org:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Create team in organization
+        uses: ./provisioner/actions/create-team
+        with:
+          ORG_NAME: suryakaiser
+          HOSTNAME: ${{ vars.hostname }}
+          USER_TOKEN: ${{ secrets.user_token }}
+          TEAM_NAME: TeamKaiser
+          DESCRIPTION: Dev team
+          PERMISSION: push
+          PRIVACY: closed
+          
+          
+
+           
+

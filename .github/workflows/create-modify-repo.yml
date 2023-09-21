@@ -1,0 +1,96 @@
+name: Create or modify Repo
+
+on:
+  pull_request:
+    types:
+      - closed
+      
+jobs:
+  create-modify-repository:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        
+      - name: Authenticate with GitHub
+        uses: ./provisioner/actions/authenticate
+        with:
+         USER_PAT: ${{ secrets.USER_PAT }}
+         HOST_NAME: ${{ vars.hostname }} 
+
+      - name: Extract issue.json data
+        run: |
+          echo "ISSUE_JSON=$(cat ./extracted-data.json | jq -c .)" >> $GITHUB_ENV
+          cat $GITHUB_ENV
+
+      - name: Read PR Title
+        id: read-PR-title
+        run: |
+          create_modify_repo=$(echo "${{ github.event.pull_request.title }}" | grep -oE 'New|Modify')
+          if [ ! -z "$create_modify_repo" ]; then            
+            echo "::set-output name=create_modify_repo::$create_modify_repo"
+          else
+            echo "The pull request title does not contain 'New' or 'Modify'"
+            # Handle the case where neither 'New' nor 'Modify' is present
+          fi          
+
+      - name: Create Repository
+        if: steps.read-PR-title.outputs.create_modify_repo == 'New'
+        id: create-repo
+        uses: ./provisioner/actions/create-repo-ghec   
+        with:
+           USER_PAT: ${{ secrets.USER_PAT }}
+           ORG_NAME: ${{ fromJson(env.ISSUE_JSON).org_name }}
+           REPO_NAME: ${{ fromJson(env.ISSUE_JSON).repo_name }}
+           DESCRIPTION: First repo
+           HOST_NAME: ${{ fromJson(env.ISSUE_JSON).host-name }}
+           HAS_WIKI: ${{ fromJson(env.ISSUE_JSON).has_wiki }}
+           HAS_PROJECTS: ${{ fromJson(env.ISSUE_JSON).has_projects }}
+           HAS_ISSUES: ${{ fromJson(env.ISSUE_JSON).has_issues }}  
+           HAS_DISCUSSIONS: ${{ fromJson(env.ISSUE_JSON).has_discussions }}
+        env:
+          ISSUE_JSON: ${{ env.ISSUE_JSON }}  
+          GITHUB_TOKEN: ${{ secrets.USER_PAT }} 
+          
+      - name: Modify Repository
+        if: steps.read-PR-title.outputs.create_modify_repo == 'Modify'
+        id: modify-repo
+        uses: ./provisioner/actions/update-repo-ghec
+        with:
+          ORG_NAME: ${{ fromJson(env.ISSUE_JSON).org_name }}
+          REPO_NAME: ${{ fromJson(env.ISSUE_JSON).repo_name }}
+          DESCRIPTION: First repo
+          HOME_PAGE: test home page
+          PRIVATE: false
+          HAS_WIKI: ${{ fromJson(env.ISSUE_JSON).has_wiki }}
+          HAS_PROJECTS: ${{ fromJson(env.ISSUE_JSON).has_projects }}
+          HAS_ISSUES: ${{ fromJson(env.ISSUE_JSON).has_issues }}  
+          HAS_DISCUSSIONS: ${{ fromJson(env.ISSUE_JSON).has_discussions }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.USER_PAT }}  
+          ISSUE_JSON: ${{ env.ISSUE_JSON }}  
+
+     
+      
+      - name: Extract issue number from PR title or body
+        id: extract-issue-number
+        run: |
+          #Extract issue number from the PR title or body
+          issue_number=$(echo "${{ github.event.pull_request.title }}" | grep -oP 'Automated #\d+' | grep -oP '\d+')
+          if [ -z "$issue_number" ]; then
+            echo "No issue reference found in the PR title. Checking PR body..."
+            issue_number=$(echo "${{ github.event.pull_request.body }}" | grep -oP 'Automated #\d+' | grep -oP '\d+')
+          fi 
+          echo "::set-output name=issue_number::$issue_number"     
+
+      - name: Add Label to Issue        
+        run: |
+          issue_number="${{ steps.extract-issue-number.outputs.issue_number }}"
+          label_name="provisioning-closed"
+
+          # Add the label to the issue using GitHub API
+          curl -X POST -H "Authorization: token ${{ secrets.USER_PAT }}" \
+            -d "{\"labels\":[\"$label_name\"]}" \
+            "https://api.github.com/repos/${{ github.repository }}/issues/$issue_number/labels"
+            

@@ -1,0 +1,77 @@
+name: Create or Modify Repo using Template
+description: Create Repo or Enable / disable WIKI, Projects, Issues for an existing repo 
+ 
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Need repository created?
+
+        Fill out this form, get a `/lgtm` comment, and you're golden!
+  - type: input
+    id: issue-assignee  
+    attributes:
+      label: Issue Assignee
+      description: Who should be assigned to this issue?
+  - type: dropdown
+    id: create-or-modify-repo 
+    attributes:  
+      label: Create or Modify Repo?
+      description: Do you want to create or modify a repo?
+      options:
+        - "New"
+        - "Modify"
+    validations:
+      required: true
+
+  - type: input
+    id: organization-name
+    attributes:
+      label: Organization name
+      description: Which organization are we updating?
+    validations:
+      required: true  
+
+  - type: input
+    id: repository-name
+    attributes:
+      label: Repository name
+      description: Which repository are we updating?
+    validations:
+      required: true
+
+  - type: dropdown
+    id: enable-wiki 
+    attributes:  
+      label: Enable WIKI?
+      description: Do you want to enable WIKI for this repo?
+      options:
+        - "True"
+        - "False"
+ 
+  - type: dropdown
+    id: enable-projects
+    attributes:
+      label: Enable Projects?
+      description: Do you want to enable Projects for this repo?
+      options:
+        - "True"
+        - "False"
+
+  - type: dropdown
+    id: enable-issues
+    attributes:
+      label: Enable Issues?
+      description: Do you want to enable Issues for this repo?
+      options:
+        - "True"
+        - "False"        
+        
+  - type: dropdown
+    id: enable-discussions
+    attributes:
+      label: Enable Discussions?
+      description: Do you want to enable discussions for this repo?
+      options:
+        - "True"
+        - "False"

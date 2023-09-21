@@ -1,0 +1,66 @@
+# Close the issue and delete the branch
+name: Close issue and delete branch
+
+on:
+ issues:
+    types:
+        - labeled
+
+jobs:
+  close-issue-and-delete-branch:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2 
+          
+      - name: Check for Label
+        id: check_label
+        run: echo "Label is ${{ github.event.label.name }}"
+        
+      - name: Conditional Step
+        if: ${{ contains(github.event.label.name, 'provisioning-closed') }}
+        run: |            
+
+          if [ -n "${{ github.event.issue.number }}" ]; then
+            echo "Closing issue #${issue_number}"
+            curl -X POST -H "Authorization: token ${{ env.GITHUB_TOKEN }}" "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.issue.number }}/comments" -d '{"body":"This issue has been closed by merging the associated pull request."}'
+            curl -X PATCH -H "Authorization: token ${{ env.GITHUB_TOKEN }}" "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.issue.number }}" -d '{"state":"closed"}'
+          else
+            echo "No issue reference found in the PR title or body."
+          fi    
+        env:
+          GITHUB_TOKEN: ${{ secrets.USER_PAT }}  
+
+      - name: Get Issue Comment
+        id: get-issue-comment
+        if: ${{ contains(github.event.label.name, 'provisioning-closed') }}
+        run: |     
+           issue_comment=$(curl -L \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.USER_PAT }}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/repos/${{ github.event.organization.login }}/${{ github.event.repository.name }}/issues/${{ github.event.issue.number }}/comments)
+             
+            echo $issue_comment            
+
+      
+            # Extract the "body" attributes from the JSON data and format them as a newline-separated list
+            body_list=$(echo "$issue_comment" | jq -r '.[].body' | tr '\n' '\n')
+
+            # Use grep to search for "Branch:" details in the list
+            branches=$(echo "$body_list" | grep -oP 'Branch:\s+\K\S+')
+
+            # Print the extracted branch details
+            echo "::set-output name=branch_name::$branches"
+
+      - name: Delete Branch        
+        id: delete-branch
+        if: ${{ contains(github.event.label.name, 'provisioning-closed') }}
+        uses: ./provisioner/actions/delete-branch
+        with:
+          BRANCH_NAME: ${{ steps.get-issue-comment.outputs.branch_name }}
+          USER_PAT: ${{ secrets.USER_PAT }} 
+          MAIN_BRANCH: main
+        env:
+          GITHUB_TOKEN: ${{ secrets.USER_PAT }}

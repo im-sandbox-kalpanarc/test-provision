@@ -1,0 +1,36 @@
+name: Create Enterprise Organization
+on:
+  workflow_dispatch:
+
+jobs:
+  create-organization:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: octokit/graphql-action@v2.x
+        id: create_enterprise_organization
+        with:
+          query: |
+            mutation CreateEnterpriseOrganization($adminLogins: [String!]!, $enterpriseId: ID!, $billingEmail: String!, $login: String!, $profileName: String!) {
+              createEnterpriseOrganization(input: {
+                adminLogins: $adminLogins,
+                enterpriseId: $enterpriseId,
+                billingEmail: $billingEmail,
+                login: $login,
+                profileName: $profileName
+              }) {
+                enterprise {
+                  id
+                  name
+                }
+              }
+            }
+          variables: |
+            {
+              "adminLogins": ["byron-infomagnus", "suryaraghava80", "naveenmunagaim", "rajkumarinfomagnus"],
+              "enterpriseId": "MDEwOkVudGVycHJpc2U1ODEx",
+              "billingEmail": "rajkumar.bommaraju@infomagnus.com",
+              "login": "test-im-kaiser",
+              "profileName": "test-im-kaiser"
+            }
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}

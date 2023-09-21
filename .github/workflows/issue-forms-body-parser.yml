@@ -1,0 +1,111 @@
+name: Issue inputs, create branch and push changes
+
+on:
+  issues:
+    types: [opened]
+
+permissions: 
+  id-token: write
+  contents: write
+  pull-requests: write
+
+jobs:
+  process:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3     
+
+      - name: Extract Issue Data
+        id: extract-issue-data
+        uses: ./provisioner/actions/extract-issue-data
+        with:          
+          USER_PAT: ${{ secrets.USER_PAT }}                     
+         
+      - name: Extract parsed data into env variable
+        run: echo "ISSUE_JSON=$(cat ./extracted-data.json | jq -c .)" >> $GITHUB_ENV
+       
+      - name: Add Assignees to Issue
+        id: add-assignees-to-issue
+        uses: ./provisioner/actions/add-assignees-to-issue
+        with: 
+          ORG_NAME: ${{ github.event.organization.login }}
+          REPO_NAME: ${{ github.event.repository.name }} 
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_ASSIGNEES: ${{ fromJson(env.ISSUE_JSON).assignees }}
+          USER_PAT: ${{ secrets.USER_PAT }}
+        env:
+          ISSUE_JSON: ${{ env.ISSUE_JSON }}  
+
+      - name: Authenticate with GitHub
+        uses: ./provisioner/actions/authenticate
+        with:
+         USER_PAT: ${{ secrets.USER_PAT }}
+         HOST_NAME: ${{ vars.hostname }}        
+      
+      - name: Initialize mandatory git config
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email noreply@github.com    
+
+      - name: Create new branch name
+        uses: ./provisioner/actions/create-new-branch
+        id: random-branch-name
+        with:
+          REPO_NAME: ${{ github.event.repository.name }}
+      - run: echo "branch-name= ${{ steps.random-branch-name.outputs.BRANCH_NAME }}"
+            
+      - name: Configure Git for Automatic Upstream
+        run: |
+          git config --global push.autoSetupRemote true     
+
+      - name: Update the provisioner/README.md with logs
+        uses: ./provisioner/actions/write-logs-to-readme
+        with:
+          REQUESTOR: ${{ github.event.issue.user.login }}
+          CREATED_AT: ${{ github.event.issue.created_at }}
+          ISSUE_URL: ${{ github.event.issue.url }}          
+          ISSUE_JSON: ${{ env.ISSUE_JSON }}
+          BRANCH_NAME: ${{ steps.random-branch-name.outputs.BRANCH_NAME }}
+          GITHUB_TOKEN: ${{ secrets.USER_PAT }}
+          ISSUE_ASSIGNEES: ${{ join(github.event.issue.assignees, ', ') }}
+        env:
+         ISSUE_JSON: ${{ env.ISSUE_JSON }}  
+
+      - name: Commit and push the changes to the new branch
+        run: |   
+         git add $GITHUB_WORKSPACE/provisioner/README.md
+         git add $GITHUB_WORKSPACE/extracted-data.json
+         git commit -m "Append details to README.md"
+         git push origin $BRANCH_NAME
+        env:
+          GITHUB_TOKEN: ${{ secrets.USER_PAT }}    
+          BRANCH_NAME: ${{ steps.random-branch-name.outputs.BRANCH_NAME }}
+          
+      - name: Create PR
+        id: create-pullrequest
+        uses: ./provisioner/actions/create-pullrequest
+        with:
+          USER_PAT: ${{ env.GITHUB_TOKEN }}
+          ORG_NAME: ${{ github.event.organization.login }}
+          REPO_NAME: ${{ github.event.repository.name }}
+          PR_TITLE: '${{ fromJson(env.ISSUE_JSON).create-modify-repo }}: Automated #${{ github.event.issue.number }}'
+          PR_BODY: 'Please pull these awesome changes in!'
+          PR_HEAD_BRANCH: '${{ steps.random-branch-name.outputs.BRANCH_NAME }}'
+          PR_MAIN_BRANCH: 'main'
+        env:
+          ISSUE_JSON: ${{ env.ISSUE_JSON }} 
+          GITHUB_TOKEN: ${{ secrets.USER_PAT }}
+          
+      - name: add comment to an issue
+        uses: ./provisioner/actions/add-comment-to-issue
+        with: 
+          ORG_NAME: ${{ github.event.organization.login }}
+          REPO_NAME: ${{ github.event.repository.name }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          COMMENT_BODY: | 
+            ${{ fromJson(env.ISSUE_JSON).create-modify-repo }} 
+            Branch: ${{ steps.random-branch-name.outputs.BRANCH_NAME }} 
+            Pull Request URL: ${{ steps.create-pullrequest.outputs.PR_URL }}         
+        env:
+          ISSUE_JSON: ${{ env.ISSUE_JSON }}  

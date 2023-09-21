@@ -1,0 +1,27 @@
+name: Create Repo in GitHub organization
+
+on:
+  workflow_dispatch:
+
+jobs:
+  create-repo-in-org:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Authenticate with GitHub
+        uses: ./provisioner/actions/authenticate
+        with:
+          USER_PAT: ${{ secrets.user_token }}
+          HOSTNAME: ${{ vars.hostname }}
+
+
+      - name: Create repo in organization
+        uses: ./provisioner/actions/create-repo-ghec
+        with:
+          ORG_NAME: im-sandbox-kalpanarc
+          REPO_NAME: test-repo-ghec
+          HOST_NAME: ${{ vars.hostname }}
+          USER_TOKEN: ${{ secrets.USER_PAT }}
+          DESCRIPTION: First repo

@@ -1,0 +1,22 @@
+name: Create Organization at enterprise level custom
+
+on:
+  push:
+    branches:
+      - custom-actions-test
+
+jobs:
+  create-org:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Provision organization
+        uses: ./provisioner/actions/create-organization-at-enterprise-level
+        with:
+          ORG_NAME: Test-org-Raj
+          PROFILE_NAME: Test-org-Raj
+          ADMIN: rajkumar
+          TOKEN : ${{ secrets.USER_TOKEN }}
+          HOSTNAME: ${{ secrets.HOST_NAME }}

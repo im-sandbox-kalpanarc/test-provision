@@ -1,0 +1,55 @@
+name: Create Organization
+description: Creates an organization on a GitHub Enterprise Server instance using the gh CLI.
+
+inputs:
+  ORG_NAME:
+    description: 'Enter new organization name'
+    required: true
+  PROFILE_NAME:
+    description: 'Enter the profile name for Organization'
+    required: true
+  ADMIN:
+    description: 'Enter GitHub handle name of Organization admin'
+    required: true
+  TOKEN:
+    description: 'Enter Personal access token of user'
+    required: true   
+  HOSTNAME:
+    description: 'Enter the hostname'
+    required: true   
+
+outputs:
+  organization_created:
+    description: 'Indicates if the organization was successfully created'
+    value: ${{ steps.create_organization.outputs.organization_created }}  
+
+runs:
+  using: composite  
+  steps:
+    - name: Create Organization at Enterprise Level
+      id: create_organization 
+      run: |
+        echo "${{ inputs.TOKEN }}" | gh auth login --hostname "${{ inputs.HOSTNAME }}" --with-token
+        
+        # Check if the organization already exists
+        response=$(gh api -H "Accept: application/vnd.github+json" --hostname "${{ inputs.HOSTNAME }}" /organizations)
+        
+        org_exists=$(echo "$response" | jq --arg orgName "${{ inputs.ORG_NAME }}" 'map(select(.login == $orgName)) | length')
+
+        if [ "$org_exists" -gt 0 ]; then
+          echo "Organization already exists."
+          exit 1  # Exit with an error code
+        fi
+
+        # If organization doesn't exist, create it
+        gh api \
+          --method POST \
+          -H "Accept: application/vnd.github+json" \
+          -H "Authorization: token ${{ inputs.TOKEN }}" \
+          --hostname "${{ inputs.HOSTNAME }}" \
+          "/admin/organizations" \
+          -f "login=${{ inputs.ORG_NAME }}" \
+          -f "profile_name=${{ inputs.PROFILE_NAME }}" \
+          -f "admin=${{ inputs.ADMIN }}"
+        echo "::set-output name=organization_created::true"
+      shell: bash

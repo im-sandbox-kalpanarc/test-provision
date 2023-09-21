@@ -1,0 +1,23 @@
+name: Create RunnerGroup At Enterprise
+
+on:
+  push:
+    branches:
+      - custom-actions-test
+    paths:
+      - '.github/workflows/create-runnergroup-enterprise.yaml'
+
+jobs:
+  create-runner-group-enterprise:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Provision organization.
+        uses: ./provisioner/actions/create-runnergroup-enterprise
+        with:
+          GROUP_NAME: rajkumar
+          ENTERPRISE_SLUG_NAME: codemilgaya-xyz
+          TOKEN : ${{ secrets.USER_TOKEN }}
+          HOSTNAME: ${{ secrets.HOST_NAME }}

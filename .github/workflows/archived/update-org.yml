@@ -1,0 +1,29 @@
+name: Update Organization at enterprise level custom action
+
+on:
+ workflow_dispatch:
+    
+jobs:
+  create-org:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Provision organization
+        uses: ./provisioner/actions/update-organization
+        with:
+          ORG_NAME: suryakaiser
+          USER_TOKEN: ${{ secrets.user_token }}
+          HOSTNAME: ${{ vars.hostname }}
+          BILLING_EMAIL: 'kalpana.c@infomagnus.com'
+          DEFAULT_REPOSITORY_PERMISSION: 'read'
+          MEMBERS_CAN_CREATE_REPOSITORIES: 'true'
+          MEMBERS_ALLOWED_REPOSITORY_CREATION_TYPE: 'all'
+
+
+
+
+         
+
+   

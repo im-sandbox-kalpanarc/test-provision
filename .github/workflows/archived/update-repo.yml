@@ -1,0 +1,26 @@
+name: Update Repo in GitHub organization
+
+on:
+  push:
+    branches:
+      - custom-actions-test
+      - './.github/workflows/update-repo.yml'
+
+jobs:
+  update-repo-in-org:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Update repo in organization
+        uses: ./provisioner/actions/update-repo
+        with:
+          ORG_NAME: suryakaiser
+          REPO_NAME: test-repo
+          HOSTNAME: ${{ vars.hostname }}
+          USER_TOKEN: ${{ secrets.user_token }}
+          TEAM_NAME: TeamKaiser
+          DESCRIPTION: First repo
+          PRIVATE: false
+          HAS_WIKI: false

@@ -1,0 +1,141 @@
+organization:
+ default_repository_permission: "read"
+ members_can_create_repositories": true
+ members_allowed_repository_creation_type: "all" 
+
+  repositorylabels: ["label1", "label2"]
+  repositorytopics: ["topic1", "topic2"]
+
+  #comment or uncomment if you want to enable or disable codespaces
+  # codespacesenabled: true
+  # codespacesdefaultaccess: "public"
+  # codespacesdefaultpermission: "read"
+  # codespacesdefaultstorage: "20gb"
+
+  # codespacesownership: "organization"
+  # codespacesdefaultimage: "ubuntu:18.04"
+  # codespacesdefaultmemory: "4gb"
+  # codespacesdefaultcpu: "2"
+  # codespacesdefaultgpu: "0"
+  # codespacesdefaultgpu_memory: "0"
+  # codespacesdefaultgpu_count: "0"
+  # codespacesdefaultgpu_type: "nvidia-tesla-k80"
+  # codespacesdefaultgpu_model: "k80"
+  # codespacesdefaultgpu_vendor: "nvidia"
+  # codespacesdefaultgpu_architecture: "pascal"
+  # codespacesdefaultgpu_topology: "1:2:3"
+  # codespacesdefaultgpu_features: "feature1,feature2"
+  # codespacesdefaultgpu_driver: "nvidia-450.80.02"
+  # codespacesdefaultgpu_memory_bandwidth: "240.00 GB/s"
+  # codespacesdefaultgpu_clock_rate: "823 MHz"
+  # codespacesdefaultgpu_compute_capability: "3.7"
+  # codespacesdefaultgpu_l1_cache_size: "16 KB"
+  # codespacesdefaultgpu_l2_cache_size: "2 MB"
+  # codespacesdefaultgpu_max_threads_per_multiprocessor: "2048"
+  # codespacesdefaultgpu_max_threads_per_block: "1024"
+
+  generalactionspersmissions: "all"
+  generalactionspolicies: "all"
+  generalactionsrunners: "all"
+  generalactionsrunnerscount: "2"
+  generalactionsrunnerslabels: ["label1", "label2"]
+  generalactionsrunnersgroups: ["group1", "group2"]
+  generalactionsrunnersorganization: "organization"
+
+  generalactionslogretention: "90"
+  generalactionslogretentionsetting: "keep_selected"
+  
+  generalactionsforkpullrequestworkflow: "enabled"
+  generalactionsworkflowpermissions: "all"
+  generalactionscreateandapprovepullrequests: "enabled"
+
+  authentication: "saml"
+  authenticationtwofactor: "enabled"
+  authenticationsshauthorties: ["sshauth1", "sshauth2"]
+  ipallowlist: ["ip1", "ip2"]
+  ipallowlistenabled: true
+  ipallowlistgithubappsenabled: true
+  
+  codescanning: "enabled"
+  dependencygraph: "enabled"
+  privatevulnerabilityreporting: "enabled"
+  privatevulnerabilityreportnewrepositories: "enabled"
+
+  dependabotsecurityupdates: "enabled"
+  dependabotenablefornewrepositories: "enabled"
+
+  advancedsecurity: "enabled"
+  advancedsecuritynewrepositories: "enabled"
+
+  secretscanning: "enabled"
+  secretscanningnewrepositories: "enabled"
+  secretscanningalertfrequency: "daily"
+  secretscanningalertrecipients: ["user1", "user2"]
+  secretscanningalertrecipientsgroups: ["group1", "group2"]
+
+  secretscanningpushprotection: "enabled"
+  secretscanningpushprotectionbranches: ["branch1", "branch2"]
+  secretscanningpushprotectionbranchespattern: "pattern"
+  secretscanningnewreposistories: "enabled"
+  
+  codesecuritymanagers: ["user1", "user2"]
+
+
+  
+
+
+  optional:
+    name: "My Organization"
+    description: "My Organization Description"
+    url: "https://myorg.com"
+
+  # the assumption is that the GH server has been joined to an IdP and that the Teams' permissions
+  # are already assigned.
+  - teams:
+      - name: TeamA
+  enableinsights: true
+  repositorydefaultbranchname: main
+  memberscancreatepublicrepositories: true
+  memberscancreateinternalrepositories: true
+  memberscancreateprivaterepositories: true
+  commitsigningrequirement: false
+  memberscancreatepages: true
+  memberscancreatewikis: true
+  memberscancreatediscussions: true
+  memberscancreateissues: true
+  memberscancreatereleases: true
+  memberscancreateprojects: true
+  memberscancreateorganizationprojects: true
+  memberscancreatepublicprojects: true
+  memberscancreateinternalprojects: true
+  memberscancreateprivateprojects: true
+  memberscancreateorganizationactions: true
+  memberscancreatepublicactions: true
+  memberscancreateinternalactions: true
+  memberscancreateprivateactions: true
+  memberscancreateorganizationpackages: true
+  memberscancreatepublicpackages: true
+  memberscancreateinternalpackages: true
+  memberscancreateprivatepackages: true
+  memberscancreateorganizationwebhooks: true
+  memberscancreatepublicwebhooks: true
+  memberscancreateinternalwebhooks: true
+  memberscancreateprivatewebhooks: true
+  memberscancreateorganizationhooks: true
+  memberscancreatepublichooks: true
+  memberscancreateinternalhooks: true
+  memberscancreateprivatehooks: true
+  memberscancreateorganizationdeploykeys: true
+  memberscancreatepublicdeploykeys: true
+  memberscancreateinternaldeploykeys: true
+  memberscancreateprivatedeploykeys: true
+  memberscancreateorganizationactionssecrets: true
+  memberscancreatepublicactionssecrets: true
+  memberscancreateinternalactionssecrets: true
+  memberscancreateprivateactionssecrets: true
+  memberscancreateorganizationpackagessecrets: true
+  memberscancreatepublicpackagessecrets: true
+  memberscancreateinternalpackagessecrets: true
+  memberscancreateprivatepackagessecrets: true
+
+  
