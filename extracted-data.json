@@ -1,8 +1,10 @@
 {
   "org_name": "im-sandbox-kalpanarc",
-  "repo_name": "test-newrepo",
-  "create-modify-repo": "New",
-  "has_issues": "true",
+  "repo_name": "p24",
+  "create-modify-repo": "Modify",
+  "has_issues": "false",
   "has_wiki": "true",
+  "has_projects": "false",
+  "has_discussions": "true",
   "assignees": "[\"KalpanaReddyC\"]"
 }
